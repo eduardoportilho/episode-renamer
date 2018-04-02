@@ -1,0 +1,23 @@
+{
+  "name": "renamer",
+  "version": "1.0.0",
+  "main": "build/index.js",
+  "author": "Eduardo <eduardo@portilho.com> (http://www.portilho.com/)",
+  "license": "MIT",
+  "scripts": {
+    "build": "babel src -d build"
+  },
+  "bin": {
+    "renamer": "build/index.js"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-latest": "^6.24.1"
+  },
+  "babel": {
+    "presets": [
+      "latest"
+    ]
+  },
+  "dependencies": {}
+}
