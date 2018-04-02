@@ -1,6 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import promptly from 'promptly'
+const IGNORED_CHARS = [':', '’']
+const REPLACEMENT_CHAR = '_'
 
 doTheMagic()
 
@@ -23,7 +25,7 @@ async function doTheMagic() {
   if (shouldProceed) {
     executeRenaming(filesToRename.rename)
   } else {
-    console.log("⛔️ Aborted!")
+    console.log("⛔️  Aborted!")
   }
 } 
 
@@ -58,7 +60,7 @@ function getFilesToRename(files, episodes) {
 
 function getMatchingEpisode(fileName, episodes) {
   for (let i = 0; i < episodes.length; i++) {
-    const episodeName = episodes[i]
+    const episodeName = sanitise(episodes[i])
     if (fileName.indexOf(episodeName) >= 0) {
       return {
         number: i+1,
@@ -69,13 +71,18 @@ function getMatchingEpisode(fileName, episodes) {
   return undefined
 }
 
+function sanitise(fileName) {
+  const regexp = new RegExp(`[${IGNORED_CHARS.join()}]`, 'gi')
+  return fileName.replace(regexp, REPLACEMENT_CHAR)
+}
+
 function shouldRenameFile(fileName) {
   return !fileName.match(/^\d+/)
 }
 
 function getNewFileName(fileName, episode) {
   const extension = getFileExtension(fileName)
-  return `${episode.number} - ${episode.name}${extension}`
+  return sanitise(`${episode.number} - ${episode.name}${extension}`)
 }
 
 function getFileExtension(fileName) {
@@ -92,9 +99,9 @@ function executeRenaming(renameList) {
       process.stdout.write(`... - [${rename.from}]`)
       try {
         fs.renameSync(rename.from, rename.to)
-        process.stdout.write(`\r✅ - [${rename.to}]\n`)
+        process.stdout.write(`\r✅  - [${rename.to}]\n`)
       } catch (e) {
-        process.stdout.write(`\r❌ - [${rename.from}]\n`)
+        process.stdout.write(`\r❌  - [${rename.from}]\n`)
       }
     }
     console.log("Done!")
