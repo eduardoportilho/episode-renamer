@@ -1,20 +1,30 @@
-#!/usr/bin/env node
-
 import fs from 'fs'
 import path from 'path'
+import promptly from 'promptly'
 
 doTheMagic()
 
-function doTheMagic() {
+async function doTheMagic() {
   const episodes = readEpisodeList('episodes.txt')
   const files = getFileList()
   const filesToRename = getFilesToRename(files, episodes)
 
-  console.log('Files to rename:')
-  filesToRename.forEach(rename => console.log(`- [${rename.from}]  ->  [${rename.to}]`))
+  console.log(`Files to rename (${filesToRename.rename.length}):`)
+  filesToRename.rename.forEach(rename => console.log(`- [${rename.from}]  ->  [${rename.to}]`))
+  console.log(`\nIgnored files (${filesToRename.ignore.length}):`)
+  filesToRename.ignore.forEach(file => console.log(`- [${file}]`))
+  console.log(`\n`)
 
-  // const shouldProceed = await promptly.confirm('Proceed with the renaming?')
-  // console.log(`>>>`, shouldProceed)
+  let shouldProceed
+  try {
+    shouldProceed = await promptly.confirm('Proceed with the renaming (y/n)?')
+  } catch (e) {}
+  
+  if (shouldProceed) {
+    executeRenaming(filesToRename.rename)
+  } else {
+    console.log("⛔️ Aborted!")
+  }
 } 
 
 function readEpisodeList(episodeFileName) {
@@ -27,18 +37,23 @@ function getFileList() {
 }
 
 function getFilesToRename(files, episodes) {
-  const filesToRename = []
+  const fileList = {
+    rename: [],
+    ignore: []
+  }
   for (const fileName of files) {
     const episode = getMatchingEpisode(fileName, episodes)
     if (episode && shouldRenameFile(fileName)) {
       const newFileName = getNewFileName(fileName, episode)
-      filesToRename.push({
+      fileList.rename.push({
         from: fileName,
         to: newFileName}
       )
+    } else {
+      fileList.ignore.push(fileName)
     }
   }
-  return filesToRename
+  return fileList
 }
 
 function getMatchingEpisode(fileName, episodes) {
@@ -69,5 +84,19 @@ function getFileExtension(fileName) {
     return fileName.substr(extIndex)
   }
   return ''
+}
+
+function executeRenaming(renameList) {
+    console.log("🚚  Renaming...")
+    for (const rename of renameList) {
+      process.stdout.write(`... - [${rename.from}]`)
+      try {
+        fs.renameSync(rename.from, rename.to)
+        process.stdout.write(`\r✅ - [${rename.to}]\n`)
+      } catch (e) {
+        process.stdout.write(`\r❌ - [${rename.from}]\n`)
+      }
+    }
+    console.log("Done!")
 }
 

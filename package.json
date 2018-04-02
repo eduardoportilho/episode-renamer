@@ -5,19 +5,31 @@
   "author": "Eduardo <eduardo@portilho.com> (http://www.portilho.com/)",
   "license": "MIT",
   "scripts": {
-    "build": "babel src -d build"
+    "build": "webpack"
   },
   "bin": {
     "renamer": "build/index.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-latest": "^6.24.1"
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-latest": "^6.24.1",
+    "webpack-cli": "^2.0.13",
+    "webpack-permissions-plugin": "^1.0.0"
   },
   "babel": {
     "presets": [
       "latest"
+    ],
+    "plugins": [
+      "transform-object-rest-spread"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "promptly": "^3.0.3",
+    "webpack": "^4.4.1"
+  }
 }
