@@ -29,6 +29,7 @@
     ]
   },
   "dependencies": {
+    "commander": "^2.15.1",
     "promptly": "^3.0.3",
     "webpack": "^4.4.1"
   }

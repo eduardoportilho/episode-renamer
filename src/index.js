@@ -1,17 +1,27 @@
 import fs from 'fs'
 import path from 'path'
 import promptly from 'promptly'
-const IGNORED_CHARS = [':', '’']
+import program from 'commander'
+
+const IGNORED_CHARS = [':', '’', '<', '>']
+const IGNORED_CHARS_REGEXP = new RegExp(`[${IGNORED_CHARS.join('')}]`, 'gi')
 const REPLACEMENT_CHAR = '_'
 
-doTheMagic()
+program
+  .option('-f, --filter [query]', 'Include only files that match <query>')
+  .option('-v, --verbose', 'Logs everything')
+  .parse(process.argv);
+const filter = program.filter || undefined
+const VERBOSE = program.verbose
 
-async function doTheMagic() {
+doTheMagic(filter)
+
+async function doTheMagic(filter) {
   const episodes = readEpisodeList('episodes.txt')
   const files = getFileList()
-  const filesToRename = getFilesToRename(files, episodes)
+  const filesToRename = getFilesToRename(files, episodes, filter)
 
-  console.log(`Files to rename (${filesToRename.rename.length}):`)
+  console.log(`\nFiles to rename (${filesToRename.rename.length}):`)
   filesToRename.rename.forEach(rename => console.log(`- [${rename.from}]  ->  [${rename.to}]`))
   console.log(`\nIgnored files (${filesToRename.ignore.length}):`)
   filesToRename.ignore.forEach(file => console.log(`- [${file}]`))
@@ -38,21 +48,28 @@ function getFileList() {
   return fs.readdirSync('./')
 }
 
-function getFilesToRename(files, episodes) {
+function getFilesToRename(files, episodes, filter) {
   const fileList = {
     rename: [],
     ignore: []
   }
   for (const fileName of files) {
+    if (!shouldRenameFile(fileName, filter)) {
+      VERBOSE && console.log(`File ignored by filtering: [${fileName}]`)
+      fileList.ignore.push(fileName)
+      continue
+    }
     const episode = getMatchingEpisode(fileName, episodes)
-    if (episode && shouldRenameFile(fileName)) {
+    if (!episode) {
+      VERBOSE && console.log(`No matching episode: [${fileName}]`)
+      fileList.ignore.push(fileName)
+      continue
+    } else {
       const newFileName = getNewFileName(fileName, episode)
       fileList.rename.push({
         from: fileName,
         to: newFileName}
       )
-    } else {
-      fileList.ignore.push(fileName)
     }
   }
   return fileList
@@ -61,7 +78,12 @@ function getFilesToRename(files, episodes) {
 function getMatchingEpisode(fileName, episodes) {
   for (let i = 0; i < episodes.length; i++) {
     const episodeName = sanitise(episodes[i])
-    if (fileName.indexOf(episodeName) >= 0) {
+    const sanitisedFileName = sanitise(fileName)
+
+    // DEBUG
+    // console.log(`"${sanitisedFileName}".indexOf("${episodeName})`, sanitisedFileName.indexOf(episodeName))
+
+    if (sanitisedFileName.indexOf(episodeName) >= 0) {
       return {
         number: i+1,
         name: episodeName
@@ -72,12 +94,17 @@ function getMatchingEpisode(fileName, episodes) {
 }
 
 function sanitise(fileName) {
-  const regexp = new RegExp(`[${IGNORED_CHARS.join()}]`, 'gi')
-  return fileName.replace(regexp, REPLACEMENT_CHAR)
+  return fileName.replace(IGNORED_CHARS_REGEXP, REPLACEMENT_CHAR).trim()
 }
 
-function shouldRenameFile(fileName) {
-  return !fileName.match(/^\d+/)
+function shouldRenameFile(fileName, filter) {
+  const fileNameStartWithNumber = fileName.match(/^\d+/)
+  let isFileIncluded = true
+  if (filter) {
+    const regexp = new RegExp(filter, 'gi')
+    isFileIncluded = fileName.match(regexp)
+  }
+  return !fileNameStartWithNumber && isFileIncluded
 }
 
 function getNewFileName(fileName, episode) {
@@ -104,6 +131,6 @@ function executeRenaming(renameList) {
         process.stdout.write(`\r❌  - [${rename.from}]\n`)
       }
     }
-    console.log("Done!")
+    console.log("📦  Done!")
 }
 
