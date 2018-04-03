@@ -1,1 +1,0 @@
--  ln -s /Users/eduardoportilho/dev/src/personal/renamer/build/index.js /usr/local/bin/renamer

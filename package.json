@@ -1,5 +1,5 @@
 {
-  "name": "renamer",
+  "name": "episode-renamer",
   "version": "1.0.0",
   "main": "build/index.js",
   "author": "Eduardo <eduardo@portilho.com> (http://www.portilho.com/)",
@@ -8,7 +8,7 @@
     "build": "webpack"
   },
   "bin": {
-    "renamer": "build/index.js"
+    "episode-renamer": "build/index.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
