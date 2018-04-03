@@ -1,6 +1,6 @@
 {
   "name": "episode-renamer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "build/index.js",
   "author": "Eduardo <eduardo@portilho.com> (http://www.portilho.com/)",
   "license": "MIT",
