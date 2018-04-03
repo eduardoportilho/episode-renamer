@@ -3,8 +3,7 @@ import path from 'path'
 import promptly from 'promptly'
 import program from 'commander'
 
-const IGNORED_CHARS = [':', '’', '<', '>', '/', '\\']
-const IGNORED_CHARS_REGEXP = new RegExp(`[${IGNORED_CHARS.join('')}]`, 'gi')
+const IGNORED_CHARS_REGEXP = /[:’<>/\\]/gi
 const REPLACEMENT_CHAR = '_'
 
 program
@@ -68,8 +67,8 @@ function getFilesToRename(files, episodes, filter) {
       const newFileName = getNewFileName(fileName, episode)
       fileList.rename.push({
         from: fileName,
-        to: newFileName}
-      )
+        to: newFileName
+      })
     }
   }
   return fileList
