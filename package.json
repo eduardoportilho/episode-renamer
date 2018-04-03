@@ -1,6 +1,6 @@
 {
   "name": "episode-renamer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "build/index.js",
   "author": "Eduardo <eduardo@portilho.com> (http://www.portilho.com/)",
   "license": "MIT",
@@ -8,7 +8,7 @@
     "build": "webpack"
   },
   "bin": {
-    "episode-renamer": "build/index.js"
+    "episode-renamer": "build/bundle.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
