@@ -3,7 +3,7 @@ import path from 'path'
 import promptly from 'promptly'
 import program from 'commander'
 
-const IGNORED_CHARS = [':', '’', '<', '>']
+const IGNORED_CHARS = [':', '’', '<', '>', '/', '\\']
 const IGNORED_CHARS_REGEXP = new RegExp(`[${IGNORED_CHARS.join('')}]`, 'gi')
 const REPLACEMENT_CHAR = '_'
 
